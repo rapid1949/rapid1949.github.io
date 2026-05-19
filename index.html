@@ -1,12 +1,560 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>正在跳转...</title>
-    <!-- 核心代码：content="0" 表示0秒后跳转 -->
-    <meta http-equiv="refresh" content="0; url=http://43.139.206.169/">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>近代启发式教学法 & 现代发现法 — 视频演示</title>
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1a1a20;
+    --surface: #20202a;
+    --text: #f0f0f2;
+    --accent: #ffb347;
+    --accent2: #87ceeb;
+    --accent3: #98fb98;
+    --accent-soft: rgba(255, 179, 71, 0.18);
+    --shell: #141418;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--shell);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Noto Sans SC', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .stage {
+    width: 1920px;
+    height: 1080px;
+    position: relative;
+    transform-origin: center center;
+    background: var(--bg);
+    overflow: hidden;
+    cursor: pointer;
+    user-select: none;
+  }
+  .step {
+    position: absolute;
+    inset: 0;
+    display: none;
+    padding: 100px 120px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .step.active { display: flex; }
+  .chalk-title {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 80px;
+    line-height: 1.25;
+    color: var(--text);
+    max-width: 1600px;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+  }
+  .chalk-large {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 110px;
+    color: var(--accent);
+    line-height: 1.15;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+  }
+  .chalk-large.blue { color: var(--accent2); }
+  .chalk-large.green { color: var(--accent3); }
+  .chalk-medium {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 64px;
+    color: var(--text);
+    opacity: 0.9;
+    margin-top: 24px;
+  }
+  .chalk-small {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 46px;
+    color: var(--text);
+    opacity: 0.78;
+    margin-top: 28px;
+  }
+  .chalk-small-accent {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 46px;
+    color: var(--accent);
+    opacity: 0.88;
+    margin-top: 20px;
+  }
+  .chalk-quote {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 60px;
+    color: var(--accent);
+    max-width: 1400px;
+    line-height: 1.45;
+    border-left: 6px solid var(--accent);
+    padding-left: 48px;
+    text-align: left;
+  }
+  .chalk-quote-author {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 34px;
+    color: var(--text);
+    opacity: 0.65;
+    margin-top: 28px;
+    text-align: left;
+    padding-left: 54px;
+  }
+  .chalk-list {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 52px;
+    color: var(--text);
+    line-height: 1.7;
+    text-align: left;
+    max-width: 1500px;
+  }
+  .chalk-list li { margin: 18px 0; list-style: none; position: relative; padding-left: 52px; }
+  .chalk-list li::before {
+    content: '>';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-size: 52px;
+    font-weight: bold;
+    top: -2px;
+  }
+  .chalk-list.compact { font-size: 44px; line-height: 1.55; }
+  .chalk-list.compact li { margin: 10px 0; }
+  .chalk-tag {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 28px;
+    color: var(--accent);
+    letter-spacing: 0.14em;
+    margin-bottom: 24px;
+  }
+  .chalk-badge {
+    display: inline-block;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 36px;
+    color: var(--bg);
+    background: var(--accent);
+    padding: 12px 40px;
+    border-radius: 8px;
+    margin: 12px 0;
+  }
+  .chalk-dust {
+    position: absolute;
+    top: 40px;
+    left: 40px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .chalk-dust.two { top: auto; bottom: 50px; right: 70px; left: auto; }
+  .chalk-dust.three { top: 180px; right: 100px; left: auto; }
+  .divider { width: 200px; height: 4px; background: var(--accent); margin: 32px auto; opacity: 0.5; }
+  .timeline-row {
+    display: flex;
+    gap: 60px;
+    align-items: flex-start;
+    justify-content: center;
+    max-width: 1700px;
+  }
+  .timeline-card {
+    font-family: 'Patrick Hand', cursive;
+    text-align: center;
+    max-width: 400px;
+  }
+  .timeline-card .year { font-size: 72px; color: var(--accent); }
+  .timeline-card .name { font-size: 38px; color: var(--text); margin-top: 8px; }
+  .timeline-card .idea { font-size: 28px; color: var(--text); opacity: 0.6; margin-top: 8px; }
+  /* 对比双栏 */
+  .compare-row { display: flex; gap: 80px; align-items: center; justify-content: center; }
+  .compare-col { text-align: center; }
+  .compare-col .label { font-family: 'Patrick Hand', cursive; font-size: 42px; color: var(--accent); margin-bottom: 16px; }
+  .compare-col .content { font-family: 'Patrick Hand', cursive; font-size: 36px; color: var(--text); line-height: 1.6; }
+  .progress {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 6px;
+    width: 0%;
+    background: var(--accent);
+    opacity: 0;
+    transition: opacity 0.3s ease, width 0.25s ease;
+  }
+  body:hover .progress { opacity: 1; }
+  .hint {
+    position: fixed;
+    bottom: 24px;
+    right: 32px;
+    color: rgba(255,255,255,0.3);
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  body:hover .hint { opacity: 1; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideLeft { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } }
+  .anim-up { animation: fadeUp 0.6s ease both; }
+  .anim-in { animation: fadeIn 0.7s ease both; }
+  .anim-down { animation: fadeDown 0.5s ease both; }
+  .anim-left { animation: slideLeft 0.6s ease both; }
+</style>
 </head>
 <body>
-    <p>页面正在跳转，如果没有反应，请 <a href="http://43.139.206.169/">点击这里</a>。</p>
+
+<div class="stage" id="stage">
+  <div class="chalk-dust"></div>
+  <div class="chalk-dust two"></div>
+  <div class="chalk-dust three"></div>
+
+  <!-- 第1章：开场 (Step 0) -->
+  <section class="step active" data-step="0">
+    <div class="chalk-title anim-up">知识，到底是怎么被「学会」的？</div>
+  </section>
+
+  <!-- 第2章：传统教育的困境 (Steps 1-2) -->
+  <section class="step" data-step="1">
+    <div class="chalk-tag anim-in">想一想</div>
+    <div class="chalk-title anim-up" style="color: var(--text);">19 世纪的课堂长什么样？</div>
+  </section>
+  <section class="step" data-step="2">
+    <div class="chalk-list anim-up">
+      <li>老师念教材，学生跟着背</li>
+      <li>问一个问题，全班一起喊标准答案</li>
+      <li>谁背得最熟，谁就是好学生</li>
+    </div>
+    <div class="chalk-badge anim-down">注入式教学</div>
+    <div class="chalk-small anim-up">知识像水一样灌进学生的容器里</div>
+  </section>
+  <section class="step" data-step="3">
+    <div class="chalk-tag anim-in">致命问题</div>
+    <div class="chalk-list anim-up">
+      <li>学生被动 — 大脑在走神</li>
+      <li>知识僵化 — 只能背不会用</li>
+      <li>扼杀思考 — 不问为什么</li>
+    </div>
+  </section>
+  <section class="step" data-step="4">
+    <div class="chalk-title anim-up">对注入式教学的反思</div>
+    <div class="chalk-large anim-down">催生了启发式教学</div>
+    <div class="chalk-small anim-in">但这个思想，比 19 世纪早了两千多年</div>
+  </section>
+
+  <!-- 第3章：苏格拉底 (Steps 5-8) -->
+  <section class="step" data-step="5">
+    <div class="chalk-tag anim-in">苏格拉底 · 公元前 469—399</div>
+    <div class="chalk-title anim-up">一个不写书、不收钱的老师</div>
+    <div class="chalk-large anim-down" style="font-size: 80px; color: var(--accent);">自称「一无所知」</div>
+    <div class="chalk-small anim-up">从不教答案 · 只问问题</div>
+  </section>
+  <section class="step" data-step="6">
+    <div class="chalk-tag anim-in">核心方法</div>
+    <div class="chalk-large anim-down">产婆术</div>
+    <div class="chalk-medium anim-up">思想的助产士</div>
+    <div class="chalk-small anim-up">母亲是助产士 · 他帮别人「生出」真理</div>
+  </section>
+  <section class="step" data-step="7">
+    <div class="chalk-tag anim-in">经典对话</div>
+    <div class="chalk-title anim-up">「什么是勇敢？」</div>
+    <div class="chalk-list compact anim-up" style="margin-top: 36px;">
+      <li>「勇敢就是不逃跑」— 假装撤退反攻呢？</li>
+      <li>「勇敢是灵魂的坚韧」— 愚昧蛮干也算？</li>
+    </div>
+    <div class="chalk-small-accent anim-up">一次追问都没有给答案 · 只问不答</div>
+  </section>
+  <section class="step" data-step="8">
+    <div class="chalk-tag anim-in">苏格拉底 · 意义与局限</div>
+    <div class="chalk-list anim-up">
+      <li>最早建立「引导而非灌输」理念</li>
+      <li>质问法至今是批判性思维标杆</li>
+    </div>
+    <div class="chalk-small anim-up" style="margin-top: 36px;">局限：一对一对话 · 难以规模化</div>
+    <div class="chalk-small-accent anim-up">两千年后，赫尔巴特接过了这个任务</div>
+  </section>
+
+  <!-- 第4章：赫尔巴特 (Steps 9-13) -->
+  <section class="step" data-step="9">
+    <div class="chalk-tag anim-in">赫尔巴特 · 1776—1841</div>
+    <div class="chalk-title anim-up">第一个把教学变成「科学」的人</div>
+    <div class="chalk-small anim-up">《普通教育学》· 1806 年出版</div>
+  </section>
+  <section class="step" data-step="10">
+    <div class="chalk-tag anim-in">核心概念</div>
+    <div class="chalk-large anim-down">统觉</div>
+    <div class="chalk-medium anim-up">大脑是个图书馆 · 新旧知识要放一起</div>
+    <div class="chalk-small anim-up">新旧观念在意识中融合的过程</div>
+  </section>
+  <section class="step" data-step="11">
+    <div class="chalk-tag anim-in">四段教学法</div>
+    <div class="chalk-list anim-up">
+      <li>1. 明了 — 清晰呈现新知识</li>
+      <li>2. 联想 — 新旧知识连接</li>
+      <li>3. 系统 — 整合成逻辑整体</li>
+      <li>4. 方法 — 应用到实际问题</li>
+    </div>
+  </section>
+  <section class="step" data-step="12">
+    <div class="chalk-tag anim-in">贡献</div>
+    <div class="chalk-list anim-up">
+      <li>教学从艺术直觉变成可操作流程</li>
+      <li>新旧连接 = 学习的本质</li>
+      <li>创立「教师中心」传统</li>
+    </div>
+  </section>
+  <section class="step" data-step="13">
+    <div class="chalk-medium anim-in">但学生仍然是被动跟随的</div>
+    <div class="chalk-small anim-up">老师决定一切 · 启发还不够彻底</div>
+  </section>
+
+  <!-- 第5章：杜威 (Steps 14-19) -->
+  <section class="step" data-step="14">
+    <div class="chalk-tag anim-in">杜威 · 1859—1952</div>
+    <div class="chalk-quote anim-in">教育即生活<br>学校即社会</div>
+  </section>
+  <section class="step" data-step="15">
+    <div class="chalk-large anim-down">从做中学</div>
+    <div class="chalk-small anim-up">不是坐在教室听杠杆原理</div>
+    <div class="chalk-small-accent anim-up">而是自己去搬一块大石头</div>
+  </section>
+  <section class="step" data-step="16">
+    <div class="chalk-tag anim-in">思维始于问题</div>
+    <div class="chalk-large anim-up" style="font-size: 90px;">没有问题，就没有真正的思考</div>
+  </section>
+  <section class="step" data-step="17">
+    <div class="chalk-tag anim-in">五步教学法</div>
+    <div class="chalk-list compact anim-up">
+      <li>1. 创设情境 — 操场单杠为什么生锈了？</li>
+      <li>2. 明确问题 — 学生自己感受到困惑</li>
+      <li>3. 提出假设 — 大胆猜测可能的原因</li>
+      <li>4. 推理验证 — 设计实验去验证</li>
+      <li>5. 应用检验 — 用结论解释新现象</li>
+    </div>
+  </section>
+  <section class="step" data-step="18">
+    <div class="chalk-title anim-up" style="color: var(--accent);">教知识 → 教思考</div>
+    <div class="chalk-small anim-up">这不是五步教学法</div>
+    <div class="chalk-medium anim-down">这是科学研究的思维流程</div>
+  </section>
+  <section class="step" data-step="19">
+    <div class="chalk-tag anim-in">贡献</div>
+    <div class="chalk-list anim-up">
+      <li>教师中心 → 学生中心</li>
+      <li>从答案开始 → 从问题开始</li>
+      <li>教育连接真实生活</li>
+    </div>
+  </section>
+
+  <!-- 第6章：克伯屈 (Steps 20-22) -->
+  <section class="step" data-step="20">
+    <div class="chalk-tag anim-in">克伯屈 · 1871—1965</div>
+    <div class="chalk-title anim-up">杜威的学生，把"做中学"推向极致</div>
+  </section>
+  <section class="step" data-step="21">
+    <div class="chalk-tag anim-in">设计教学法</div>
+    <div class="chalk-list anim-up">
+      <li>确定目的 — 学生自己选项目</li>
+      <li>拟定计划 — 自己规划怎么做</li>
+      <li>实施执行 — 动手去做</li>
+      <li>评价结果 — 自己复盘学到了什么</li>
+    </div>
+    <div class="chalk-small-accent anim-up">这就是今天 PBL 项目式学习的前身</div>
+  </section>
+  <section class="step" data-step="22">
+    <div class="chalk-tag anim-in">启发式教学 · 小结</div>
+    <div class="chalk-title anim-up">教学不是灌输，而是点燃</div>
+    <div class="chalk-list compact anim-up" style="margin-top: 40px;">
+      <li style="color: var(--accent);">苏格拉底：提问追问，让人自己发现矛盾</li>
+      <li style="color: var(--accent);">赫尔巴特：教师引导新旧连接</li>
+      <li style="color: var(--accent2);">杜威：问题驱动主动探究</li>
+      <li style="color: var(--accent3);">克伯屈：项目统整真实学习</li>
+    </div>
+  </section>
+
+  <!-- 第7章：布鲁纳 (Steps 23-28) -->
+  <section class="step" data-step="23">
+    <div class="chalk-tag anim-in">布鲁纳 · 1915—2016</div>
+    <div class="chalk-title anim-up">斯普特尼克时刻后的教育改革旗手</div>
+    <div class="chalk-small anim-up">《教育过程》· 1960 年</div>
+  </section>
+  <section class="step" data-step="24">
+    <div class="chalk-title anim-up">任何学科的原理</div>
+    <div class="chalk-large anim-down">都可以教给任何年龄的人</div>
+    <div class="chalk-small anim-up">关键是找到适合他认知水平的方式</div>
+  </section>
+  <section class="step" data-step="25">
+    <div class="chalk-tag anim-in">发现法 · 核心</div>
+    <div class="chalk-quote anim-in">不把结论告诉学生<br>而是让学生自己「发现」规律</div>
+    <div class="chalk-quote-author anim-up">老师不是给地图的人，是提供地形和罗盘的人</div>
+  </section>
+  <section class="step" data-step="26">
+    <div class="chalk-tag anim-in">四个特征</div>
+    <div class="chalk-list compact anim-up">
+      <li>强调过程而非结果 — 自己推导胜过背公式</li>
+      <li>重视直觉思维 — 大胆猜测是创造的开始</li>
+      <li>激发内在动机 — 发现本身就是奖励</li>
+      <li>强调学科结构 — 掌握框架，细节自己长</li>
+    </div>
+  </section>
+  <section class="step" data-step="27">
+    <div class="chalk-tag anim-in">课堂实例</div>
+    <div class="chalk-title anim-up">三角形内角和 = 180°</div>
+    <div class="chalk-list anim-up" style="margin-top: 36px;">
+      <li>传统：老师说 → 学生记 → 做题</li>
+      <li style="color: var(--accent);">发现法：画三角形 → 剪下三个角 → 拼一拼</li>
+    </div>
+    <div class="chalk-large anim-down" style="font-size: 72px;">「三个角拼成了一条直线！」</div>
+  </section>
+  <section class="step" data-step="28">
+    <div class="chalk-tag anim-in">螺旋式课程</div>
+    <div class="chalk-title anim-up">同一个概念，反复出现，越挖越深</div>
+    <div class="chalk-list anim-up" style="margin-top: 40px;">
+      <li>幼儿园：轮流玩玩具 — 感受公平</li>
+      <li>小学：投票决定班级活动 — 理解公平</li>
+      <li>初中：分配资源 — 分析公平</li>
+      <li>高中：社会正义理论 — 思辨公平</li>
+    </div>
+  </section>
+
+  <!-- 第8章：对比 (Step 29) -->
+  <section class="step" data-step="29">
+    <div class="chalk-tag anim-in">核心区别</div>
+    <div class="compare-row anim-up" style="margin-top: 40px;">
+      <div class="compare-col">
+        <div class="label">启发式教学法</div>
+        <div class="content">教师搭好梯子<br>学生往上爬</div>
+      </div>
+      <div style="font-family: 'Patrick Hand', cursive; font-size: 52px; color: var(--accent);">vs</div>
+      <div class="compare-col">
+        <div class="label" style="color: var(--accent2);">发现法</div>
+        <div class="content">教师指出方向<br>学生自己找路</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 第9章：启示 (Steps 30-32) -->
+  <section class="step" data-step="30">
+    <div class="chalk-tag anim-in">启示</div>
+    <div class="chalk-title anim-up">教学的中心，正在从教师移向学生</div>
+    <div class="chalk-small anim-up">这是一个不可逆转的趋势</div>
+  </section>
+  <section class="step" data-step="31">
+    <div class="chalk-tag anim-in">教师角色四次跃迁</div>
+    <div class="chalk-list anim-up">
+      <li>苏格拉底时代：<span style="color: var(--accent);">提问者</span> — 只问不答</li>
+      <li>赫尔巴特时代：<span style="color: var(--accent);">设计师</span> — 精心规划每个环节</li>
+      <li>杜威时代：<span style="color: var(--accent2);">引导者</span> — 提问激发好奇心</li>
+      <li>布鲁纳时代：<span style="color: var(--accent3);">促进者</span> — 退到幕后提供资源</li>
+    </div>
+  </section>
+  <section class="step" data-step="32">
+    <div class="chalk-tag anim-in">不管你是谁</div>
+    <div class="chalk-list compact anim-up">
+      <li>学生：主动推导，别只等答案</li>
+      <li>家长：孩子提问时反问「你觉得呢？」</li>
+      <li>管理者：设计小任务让团队自己摸索</li>
+      <li>学习者：找到让你好奇的问题</li>
+    </div>
+  </section>
+
+  <!-- 第10章：总结 (Steps 33-36) -->
+  <section class="step" data-step="33">
+    <div class="chalk-tag anim-in">演进脉络</div>
+    <div class="timeline-row anim-up">
+      <div class="timeline-card">
+        <div class="year">前400</div>
+        <div class="name">苏格拉底</div>
+        <div class="idea">产婆术<br>提问追问</div>
+      </div>
+      <div class="timeline-card">
+        <div class="year">1806</div>
+        <div class="name">赫尔巴特</div>
+        <div class="idea">四段教学法<br>科学化教学</div>
+      </div>
+      <div class="timeline-card">
+        <div class="year">1900s</div>
+        <div class="name">杜威</div>
+        <div class="idea">从做中学<br>学生中心</div>
+      </div>
+      <div class="timeline-card">
+        <div class="year">1960</div>
+        <div class="name">布鲁纳</div>
+        <div class="idea">发现法<br>认知发现</div>
+      </div>
+    </div>
+  </section>
+  <section class="step" data-step="34">
+    <div class="chalk-tag anim-in">一句话记住今天</div>
+    <div class="chalk-quote anim-in">
+      从苏格拉底到布鲁纳<br>
+      教育从「教什么」转向「怎么学」<br>
+      从「灌输答案」转向「点燃好奇」
+    </div>
+  </section>
+  <section class="step" data-step="35">
+    <div class="chalk-medium anim-in">苏格拉底教会我们提问</div>
+    <div class="chalk-medium anim-up" style="color: var(--accent);">赫尔巴特教会我们怎么教</div>
+    <div class="chalk-medium anim-down" style="color: var(--accent2);">杜威教会我们为什么学</div>
+    <div class="chalk-medium anim-in" style="color: var(--accent3); margin-top: 4px;">布鲁纳教会我们怎么发现</div>
+  </section>
+  <section class="step" data-step="36">
+    <div class="chalk-large anim-down" style="color: var(--accent);">教育不是把桶灌满</div>
+    <div class="chalk-large anim-up" style="color: var(--accent2); margin-top: 20px;">而是把火点燃</div>
+    <div class="chalk-small anim-in" style="margin-top: 60px;">谢谢大家 🙏</div>
+  </section>
+
+</div>
+
+<div class="progress" id="progress"></div>
+<div class="hint">点击继续 / 按 ← → 翻页 / Home 开头 End 结尾</div>
+
+<script>
+  const stage = document.getElementById('stage');
+  function scaleStage() {
+    const scaleX = window.innerWidth / 1920;
+    const scaleY = window.innerHeight / 1080;
+    const scale = Math.min(scaleX, scaleY);
+    stage.style.transform = `scale(${scale})`;
+  }
+  window.addEventListener('resize', scaleStage);
+  scaleStage();
+
+  const steps = document.querySelectorAll('.step');
+  const progress = document.getElementById('progress');
+  const STORAGE_KEY = 'teachMethodVideoStep_v1';
+  let current = parseInt(localStorage.getItem(STORAGE_KEY) || '0');
+  const total = steps.length;
+
+  function showStep(n) {
+    current = Math.max(0, Math.min(n, total - 1));
+    steps.forEach((s, i) => s.classList.toggle('active', i === current));
+    progress.style.width = ((current + 1) / total) * 100 + '%';
+    localStorage.setItem(STORAGE_KEY, current);
+  }
+  showStep(current);
+
+  stage.addEventListener('click', () => showStep(current + 1));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') { e.preventDefault(); showStep(current + 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); showStep(current - 1); }
+    if (e.key === 'Home') { e.preventDefault(); showStep(0); }
+    if (e.key === 'End') { e.preventDefault(); showStep(total - 1); }
+    if (e.key === 'r') { e.preventDefault(); localStorage.removeItem(STORAGE_KEY); showStep(0); }
+  });
+  let touchStartX = 0;
+  stage.addEventListener('touchstart', (e) => touchStartX = e.touches[0].clientX);
+  stage.addEventListener('touchend', (e) => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 60) showStep(current + (diff > 0 ? 1 : -1));
+  });
+</script>
+
 </body>
 </html>
